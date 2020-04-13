@@ -61,6 +61,7 @@ def Notification(isSuccess, serverSuccess):
     exit()
 '''
 
+'''
 def Notification(isSuccess, serverSuccess, userId):
     fp = open("log", "a+")
     push = _jpush.create_push()
@@ -81,13 +82,23 @@ def Notification(isSuccess, serverSuccess, userId):
         response=push.send()
     except common.Unauthorized:
         raise common.Unauthorized("Unauthorized")
-
     except common.APIConnectionException:
         raise common.APIConnectionException("conn")
     except common.JPushFailure:
         print ("JPushFailure")
     except:
         print ("Exception")
+'''
+def Notification(isSuccess, serverSuccess, userId):
+    fp = open("log", "a+")
+    if isSuccess:
+        fp.write("用户编号:" + userId + " 本次上报成功！本次上报时间：" + time.strftime("%m月%d日，%H:%M:%S"))
+    elif serverSuccess:
+        fp.write("用户编号:" + userId + " 本次上报失败! 本次上报时间：" + time.strftime("%m月%d日，%H:%M:%S"))
+    else:
+        fp.write("用户编号:" + userId + " 本次上报失败(Cookie失效)! 本次上报时间：" + time.strftime("%m月%d日，%H:%M:%S"))
+    fp.write("\n")
+    fp.close()
 
 def run(c):
     user = c.split(",")
@@ -141,13 +152,15 @@ if __name__ == "__main__":
     requests.packages.urllib3.disable_warnings()
     _jpush = jpush.JPush(app_key, master_secret)
     _jpush.set_logging("DEBUG")
-    try:
-        cookieFile = open("cookieFile.txt", "r")
-        text = cookieFile.read()
-        cookies = text.split("\n")
-        for c in cookies:
-            state = run(c)
-    except:
-        Notification(False, False, "未知用户")
-        state = 3
+    cookieFile = open("/Users/ikin/Desktop/Python实验/健康系统打卡/cookieFile.txt", "r")
+    text = cookieFile.read()
+    cookies = text.split("\n")
+    for c in cookies:
+            try:
+                print(c)
+                state = run(c)
+            except:
+                userId = c.split(",")[0]
+                Notification(False, False, userId)
+                state = 3
 
