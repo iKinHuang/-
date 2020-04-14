@@ -69,15 +69,14 @@ def TryCheckIn(userName, cookie, region, rylx, status):
 def Notification(isSuccess, userName):
     deviceId = "SNqtotKYYr6hWWT8f6cEJd"
     fp = open("log", "a+")
-    fp.write(time.strftime("%m月%d日"))
     if isSuccess:
         title = "上报成功"
         body = "用户编号" + userName + "于" + time.strftime("%m月%d日，%H:%M:%S") + "成功上报。"
-        fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S"))
+        fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S") + "\n")
     else:
         title = "上报失败"
         body = "用户编号" + userName + "成功失败，请前往服务端查看。"
-        fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S"))
+        fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S") + "\n")
     fp.close()
     #向客户端发送信息
     url =  "https://api.day.app/" + deviceId + "/" + title + "/" + body  
@@ -93,6 +92,9 @@ if __name__ == "__main__":
     cookieFile = open("/Users/ikin/Desktop/Python实验/健康系统打卡/cookieFile.txt", "r")
     text = cookieFile.read()
     cookieFile.close()
+    fp = open("log", "a+")
+    fp.write(time.strftime("%m月%d日") + "\n")
+    fp.close()
     usersInfo = text.split("\n")
     #最后一行不能是空，会越界
     q = queue.Queue(maxThreads)
