@@ -17,7 +17,7 @@ class CheckIn(threading.Thread):
         self.rylx = rylx
         self.status = status
         self.queue = queue
-    
+
     def run(self):
         print("开始尝试打卡，用户编号:" + self.userName)
         isSuccess = TryCheckIn(self.userName, self.cookie, self.region, self.rylx, self.status)
@@ -41,7 +41,7 @@ def TryCheckIn(userName, cookie, region, rylx, status):
         'Accept-Language':'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6'
     }
     #请求体
-    params={   
+    params={
         'xgh': userName,
         'lon' : '',
         'lat' : '',
@@ -64,10 +64,12 @@ def TryCheckIn(userName, cookie, region, rylx, status):
             state = 0
     except:
         state = 0
+    session.close()
     return state
-    
+
 def Notification(isSuccess, userName):
-    deviceId = "SNqtotKYYr6hWWT8f6cEJd"
+    time.sleep(1)   #可能是发起requests太密集导致的问题？
+    deviceId = "uK2iwCcbhmcjwbgSn82kwe"
     fp = open("log", "a+")
     if isSuccess:
         title = "上报成功"
@@ -75,21 +77,23 @@ def Notification(isSuccess, userName):
         fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S") + "\n")
     else:
         title = "上报失败"
-        body = "用户编号" + userName + "成功失败，请前往服务端查看。"
-        fp.write("用户编号:" + userName + "\t" + "上报时间:" + time.strftime("%H:%M:%S") + "\n")
-    fp.close()
+        body = "用户编号" + userName + "上报失败，请前往服务端查看。"
+        fp.write("用户编号:" + userName + "\t" + "失败时间:" + time.strftime("%H:%M:%S") + "\n")
     #向客户端发送信息
-    url =  "https://api.day.app/" + deviceId + "/" + title + "/" + body  
-    s = requests.Session()
-    r = s.get(url)
+    url =  "https://api2.day.app:4443/" + deviceId + "/" + title + "/" + body
+    print(url)
+    try:
+        s = requests.Session()
+        r = s.get(url)
+    except:
+        fp.write("推送时遇到了奇怪的问题\n")
+    s.close()
+    fp.close()
 
-
-
-
-maxThreads = 1 
+maxThreads = 1
 
 if __name__ == "__main__":
-    cookieFile = open("/Users/ikin/Desktop/Python实验/健康系统打卡/cookieFile.txt", "r")
+    cookieFile = open("/usr/cookieFile.txt", "r")
     text = cookieFile.read()
     cookieFile.close()
     fp = open("log", "a+")
@@ -112,5 +116,3 @@ if __name__ == "__main__":
         thread.start()
     q.join()
     print("所有线程结束")
-
-        
